@@ -2,21 +2,21 @@ clear all;close all;clc;
 % Generate fake data for simulation
 %% Set simulation parameters
 O_0 = [0, 0, 0]';
-Odot = [0, 0, 1]';
+Odot = [2, 2, 12]';
 euler = [0, 0, 0]';
 R = R_euler(euler(1), euler(2), euler(3));
 uhat = R(:,1);
 vhat = R(:,2);
-sigma = 0.1;
-deltat = 1;
+sigma = 1;
+deltat = 0.5;
 T = 10;
 %% Data generating
 data = zeros(14,T/deltat);
 for t = 1:T/deltat
     data(1:3,t) = O_0 + Odot.*t*deltat;
     data(4:6,t) = euler;
-    data(13,t) = 0.01*t*t*t*deltat;
-    data(14,t) = t*deltat;
+    data(13,t) = 0.1*t*t*t*deltat;
+    data(14,t) = 10*t*deltat;
     data(7:9,t) = data(1:3,t) + data(13,t)*uhat + data(14,t)*vhat;
     if t == 1
         data(10:12,t) = data(7:9,t);
