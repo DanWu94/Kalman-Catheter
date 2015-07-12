@@ -19,7 +19,7 @@ Qcat = eye(6)*sigma_p^2;
 Q = zeros(n);
 Q(1:12,1:12) = Qpi;
 Q(13:18,13:18) = Qcat;
-sigma_m = 0.01;
+sigma_m = 0.1;
 R = eye(14)*sigma_m^2;
 %% Set filter parameters
 alpha = 1;
@@ -40,8 +40,12 @@ W = (eye(2*n+1)-repmat(W_m,1,2*n+1))*diag(W_c)*(eye(2*n+1)-repmat(W_m,1,2*n+1))'
 figure;
 for t = 1:size(data,2)
 %% Fake input
-    y = data(:,t);
+    y = obdata(:,t);    
     plot3(y(7),y(8),y(9),'rx');
+    hold on;
+%% Plot ground truth
+    gr = data(:,t);
+    plot3(gr(7),gr(8),gr(9),'b.');
     hold on;
 %% Prediction
     X = repmat(m,1,2*n+1)+sqrt(c)*[zeros(size(m)),chol(P),-chol(P)];
@@ -63,9 +67,12 @@ for t = 1:size(data,2)
     K = C/S;
     m = mminus + K*(y-mu);
     P = Pminus - K*S*K';
-    [U,S,V] = svd(P);
-    P = V*S*V';
-    plot3(m(13),m(14),m(15),'bo');
+    [V,D] = eig(P);
+    eps = 0.01;
+    d = diag(D);
+    d(d<=0) = eps;
+    P = V*diag(d)*V';
+    plot3(m(13),m(14),m(15),'go');
     hold on;
 end
 
