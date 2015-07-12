@@ -14,12 +14,10 @@ uhatapo_k = R*[1, 0, 0]';
 vhatapo_k = R*[0, 1, 0]';
 Oapo_k = sapopi_k(1:3);
 %% Compute intersection parameters
-% [lamda, u, v] = f_inter( p_km1, v_km1, uhatapo_k, vhatapo_k, Oapo_k );
+[lamda, u, v] = f_inter( p_km1, v_km1, uhatapo_k, vhatapo_k, Oapo_k );
 %% Predict intersection point
-% papo_k = u*uhatapo_k + v*vhatapo_k + Oapo_k;
-% vapo_k = papo_k - p_km1;
-papo_k = p_km1 + v_km1;
-vapo_k = v_km1;
+papo_k = u*uhatapo_k + v*vhatapo_k + Oapo_k;
+vapo_k = papo_k - p_km1;
 %%
 sapo_k = zeros(size(s_km1));
 sapo_k(1:12)= sapopi_k;
