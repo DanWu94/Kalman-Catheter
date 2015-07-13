@@ -2,29 +2,29 @@ clear all;close all;clc;
 load data.mat;
 %% Set model parameters
 % A simple movement in 3-d space
-m = [0, 0, 0, 2, 2, 12, ...
+m = [0, 0, 0, 0, 0, 12, ...
     0, 0, 0, 0, 0, 0, ...
-    0, 0, 0, 0, 1, 1]';
+    0, 0, 0, 1, 1, 1]';
 % [O_1, O_2, O_3, Odot_1, Odot_2, Odot_3, 
 % euler_1, euler_2, euler_3, eulerdot_1, eulerdot_2, eulerdot_3,
 % p_1, p_2, p_3, v_1, v_2, v_3]
-deltat = 0.5;
+deltat = 1/30;
 n = length(m);
 P = 1*eye(n);
-phi_s = 1;
-C = [eye(3)*deltat^3/3, eye(3)*deltat^2/2; eye(3)*deltat^2/2, eye(3)*deltat]*phi_s;
+phi_s = 0.1;%don't know
+C = [eye(3)*deltat^3/3, eye(3)*deltat^2/2; eye(3)*deltat^2/2, eye(3)*deltat].*phi_s;
 Qpi = [C, zeros(size(C)); zeros(size(C)), C];
-sigma_p = 0.1;
-Qcat = eye(6)*sigma_p^2;
+sigma_p_square = 0.1;%from 0.1 to 4.0
+Qcat = eye(6)*sigma_p_square;
 Q = zeros(n);
 Q(1:12,1:12) = Qpi;
 Q(13:18,13:18) = Qcat;
-sigma_m = 2;
-R = eye(14)*sigma_m^2;
+sigma_m_square = 0.05;%0.05, 2.0, 4.0
+R = eye(14)*sigma_m_square;
 %% Set filter parameters
-alpha = 0.01;
-beta = 2;
-kappa = 0;
+alpha = 10;%determines spread of sigma points, usually small(e.g. 1e-3)
+beta = 2;%incorporate prior knowledge of distribution, 2 is optimal for Gauss
+kappa = 0;%secondary scaling parameter, usually set to 0
 lamda = alpha^2*(n+kappa)-n;
 c = alpha^2*(n+kappa);
 W_m = zeros(2*n+1,1);
@@ -38,6 +38,8 @@ end
 W = (eye(2*n+1)-repmat(W_m,1,2*n+1))*diag(W_c)*(eye(2*n+1)-repmat(W_m,1,2*n+1))';
 %% Interation
 figure;
+ySE = 0;
+mSE = 0;
 for t = 1:size(data,2)
 %% Fake input
     y = obdata(:,t);    
@@ -75,7 +77,11 @@ for t = 1:size(data,2)
     %P = V*diag(d)*V';
     plot3(m(13),m(14),m(15),'go');
     hold on;
+%% Calculate squared error
+    mSE = mSE + sum((m(13:15)-gr(7:9)).^2);
+    ySE = ySE + sum((y(7:9)-gr(7:9)).^2);
 end
+title(['mSE = ',num2str(mSE),' ySE = ',num2str(ySE)]);
 
 
 
